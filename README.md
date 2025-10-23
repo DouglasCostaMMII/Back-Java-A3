@@ -1,6 +1,5 @@
 # A3 Controle de Estoque em Java Backend
 
-<img src="imagem.png" alt="Exemplo imagem">
 
 > Projeto com o objeto de conter o backend do nosso projeto, utilizando java no backend e ... no front.
 
