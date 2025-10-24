@@ -4,7 +4,7 @@
  */
 package com.mycompany.projeto.backend.a3.dto;
 
-// Esta classe representa o JSON enviado pelo seu formEditar
+// JSON do Post Editar
 public class EditarCategoriaRequest {
     private String nome;
     private String editStatus;

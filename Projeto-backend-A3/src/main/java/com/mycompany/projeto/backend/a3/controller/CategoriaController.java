@@ -20,23 +20,23 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api") // Define o prefixo '/api' para todas as rotas
-@CrossOrigin(origins = "*") // Permite CORS, similar ao Flask-CORS
+@CrossOrigin(origins = "*")
 public class CategoriaController {
 
-    @Autowired // Injeta o repositório (nosso "DAO")
+    @Autowired // Injeta o repositório
     private CategoriaRepository categoriaRepository;
 
-    // Equivalente a: @categorias_blueprint.route('/api/categorias', methods=['GET'])
+    // Obter todas categorias
     @GetMapping("/categorias")
     public ResponseEntity<List<Categoria>> getCategorias() {
         List<Categoria> results = categoriaRepository.findAll();
         return ResponseEntity.ok(results);
     }
 
-    // Equivalente a: @categorias_blueprint.route('/api/categoria/criar', methods=['POST'])
+    // Criar Categorias
     @PostMapping("/categoria/criar")
     public ResponseEntity<?> addCategoria(@RequestBody Categoria novaCategoria) {
-        // O Spring já converte o JSON do body para um objeto Categoria
+
         try {
             novaCategoria.setStatus(novaCategoria.getStatus().toUpperCase());
             Categoria categoriaSalva = categoriaRepository.save(novaCategoria);
@@ -46,7 +46,7 @@ public class CategoriaController {
         }
     }
 
-    // Equivalente a: @categorias_blueprint.route('/api/categoria/editar', methods=['POST'])
+    // Editar Categoria
     @PostMapping("/categoria/editar")
     public ResponseEntity<?> editarCategoria(@RequestBody EditarCategoriaRequest request) {
         // Busca a categoria existente no banco
@@ -63,14 +63,14 @@ public class CategoriaController {
             categoria.setTamanho(request.getTamanho());
             categoria.setEmbalagem(request.getEmbalagem());
             
-            categoriaRepository.save(categoria); // O .save() também serve para atualizar
+            categoriaRepository.save(categoria);
             return ResponseEntity.ok(Map.of("Mensagem", "Categoria Modificada com sucesso"));
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("Erro", "erro ao Modificar Categoria"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Equivalente a: @categorias_blueprint.route('/api/categoria/alt_status', methods=['POST'])
+    // Alterar Status
     @PostMapping("/categoria/alt_status")
     public ResponseEntity<?> alterarStatus(@RequestBody AlterarStatusRequest request) {
         

@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class main {
 
     public static void main(String[] args) {
-        // Isso inicia o servidor web, assim como o app.run() no Flask
+        // Iniciar o servidor web
         SpringApplication.run(main.class, args);
     }
 }
