@@ -7,8 +7,11 @@
 
 O projeto ainda está em desenvolvimento e as próximas atualizações serão voltadas para as seguintes tarefas:
 
-- [ ] Categorias 
+- [X] Categorias 
 - [ ] Produtos
 - [ ] Movimentação
 - [ ] Relatórios
 
+
+
+Link com URLs dos endpoints: https://www.postman.com/martian-escape-548067/a3/request/buz9o33/get-categoria 
