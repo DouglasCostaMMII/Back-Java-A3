@@ -56,6 +56,8 @@ public class ProdutoController {
             novoProduto.setQuantidadeEstoque(request.getQuantidadeEstoque());
             novoProduto.setQuantidadeMinima(request.getQuantidadeMinima());
             
+             // 4. Associa o objeto Categoria ao novo Produto
+             novoProduto.setCategoria(categoria); 
 
             
             // Define o status em maiúsculas por convenção, caso seu banco exija

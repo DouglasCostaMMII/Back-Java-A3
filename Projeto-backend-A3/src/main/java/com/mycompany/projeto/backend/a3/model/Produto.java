@@ -75,5 +75,8 @@ public class Produto {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+     // Getter/Setter da Categoria
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
  
 }
