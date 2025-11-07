@@ -11,7 +11,6 @@ public class CriarProdutoRequest {
     private String nome;
     private BigDecimal preco;
     private Integer quantidade; 
-    private Integer quantidadeEstoque;
     private Integer quantidadeMinima; 
     private String status;
     
@@ -30,8 +29,6 @@ public class CriarProdutoRequest {
     public Integer getQuantidade() { return quantidade; }
     public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
 
-    public Integer getQuantidadeEstoque() { return quantidadeEstoque; }
-    public void setQuantidadeEstoque(Integer quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
 
     public Integer getQuantidadeMinima() { return quantidadeMinima; }
     public void setQuantidadeMinima(Integer quantidadeMinima) { this.quantidadeMinima = quantidadeMinima; }

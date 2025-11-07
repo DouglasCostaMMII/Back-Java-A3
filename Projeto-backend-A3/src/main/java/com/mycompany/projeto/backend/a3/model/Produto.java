@@ -29,9 +29,6 @@ public class Produto {
     @Column(name = "preco", nullable = false, precision = 10, scale = 2) 
     private BigDecimal preco; 
 
-    // Coluna 'quantidade_estoque'
-    @Column(name = "quantidade_estoque", nullable = false)
-    private Integer quantidadeEstoque;
     
     // Coluna 'quantidade_minima'
     @Column(name = "quantidade_minima", nullable = false)
@@ -66,8 +63,6 @@ public class Produto {
     public Integer getQuantidade() { return quantidade; }
     public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
 
-    public Integer getQuantidadeEstoque() { return quantidadeEstoque; }
-    public void setQuantidadeEstoque(Integer quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
     
     public Integer getQuantidadeMinima() { return quantidadeMinima; }
     public void setQuantidadeMinima(Integer quantidadeMinima) { this.quantidadeMinima = quantidadeMinima; }
