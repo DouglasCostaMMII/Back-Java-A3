@@ -2,21 +2,25 @@ package com.mycompany.projeto.backend.a3.repository;
 
 import com.mycompany.projeto.backend.a3.model.Produto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 
-/**
- * Interface de acesso a dados para a entidade Produto.
- * Extende JpaRepository para fornecer métodos CRUD (Create, Read, Update, Delete).
- */
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
-    // A JpaRepository já fornece: save(), findById(), findAll(), delete(), etc.
-    
-    // Você pode adicionar métodos personalizados aqui, se precisar.
-    // Exemplo: Buscar produtos por nome
-    // List<Produto> findByNomeContainingIgnoreCase(String nome);
-    
-    // Exemplo: Buscar produtos por status
-    // List<Produto> findByStatus(String status);
+    @Query("SELECT c.nome AS categoria, COUNT(DISTINCT p.nome) AS quantidade " +
+           "FROM Produto p " +
+           "JOIN p.categoria c " +
+           "GROUP BY c.nome " +
+           "ORDER BY c.nome ASC")
+    List<Object[]> contarProdutosPorCategoria();
+
+    @Query("SELECT p.nome AS produto, " +
+           "COALESCE(SUM(CASE WHEN m.tipo = 'ENTRADA' THEN m.quantidade ELSE 0 END), 0) AS totalEntradas, " +
+           "COALESCE(SUM(CASE WHEN m.tipo = 'SAIDA' THEN m.quantidade ELSE 0 END), 0) AS totalSaidas " +
+           "FROM MovimentacaoEstoque m " +
+           "JOIN m.produto p " +
+           "GROUP BY p.nome")
+    List<Object[]> buscarResumoMovimentacoes();
 }

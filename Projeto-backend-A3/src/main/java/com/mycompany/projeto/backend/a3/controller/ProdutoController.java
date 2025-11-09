@@ -1,25 +1,10 @@
 package com.mycompany.projeto.backend.a3.controller;
-
 import com.mycompany.projeto.backend.a3.model.Produto;
 import com.mycompany.projeto.backend.a3.model.Categoria; // Importa o modelo de Categoria
 import com.mycompany.projeto.backend.a3.repository.ProdutoRepository;
 import com.mycompany.projeto.backend.a3.repository.CategoriaRepository; // Necessário para buscar a categoria
 import com.mycompany.projeto.backend.a3.dto.AtualizarStatusProdutoRequest;
 import com.mycompany.projeto.backend.a3.dto.CriarProdutoRequest;     // DTO de criação
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-
-import com.mycompany.projeto.backend.a3.model.Produto;
-import com.mycompany.projeto.backend.a3.model.Categoria;
-import com.mycompany.projeto.backend.a3.repository.ProdutoRepository;
-import com.mycompany.projeto.backend.a3.repository.CategoriaRepository;
-import com.mycompany.projeto.backend.a3.dto.CriarProdutoRequest;
 import com.mycompany.projeto.backend.a3.dto.MovimentacaoEstoqueRequest; // IMPORT NOVO DTO
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
