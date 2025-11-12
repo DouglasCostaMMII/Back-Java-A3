@@ -1,15 +1,11 @@
 package com.mycompany.projeto.backend.a3.controller;
-
 import com.mycompany.projeto.backend.a3.model.Produto;
 import com.mycompany.projeto.backend.a3.repository.ProdutoRepository;
-import com.mycompany.projeto.backend.a3.repository.CategoriaRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.math.BigDecimal;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -23,12 +19,7 @@ public class RelatorioController {
     @Autowired
     private ProdutoRepository produtoRepository;
 
-    @Autowired
-    private CategoriaRepository categoriaRepository;
-
-    // -------------------------
     // Helper: tenta obter unidade via reflection
-    // -------------------------
     private String tentarObterUnidade(Produto p) {
         try {
             // tenta getUnidadeMedida()
@@ -64,8 +55,6 @@ public class RelatorioController {
                 m.put("produtoId", p.getProdutoId());
                 m.put("nome", p.getNome());
                 m.put("preco", p.getPreco());
-                // unidade de medida via reflection (N/A se não existir)
-                m.put("unidadeMedida", tentarObterUnidade(p));
                 m.put("categoria", p.getCategoria() != null ? p.getCategoria().getNome() : "Sem categoria");
                 return m;
             }).collect(Collectors.toList());
@@ -80,7 +69,7 @@ public class RelatorioController {
         }
     }
 
-    // 2) Balanço Físico / Financeiro
+    // 2 Balanço Físico / Financeiro
     @GetMapping("/relatorios/balanco")
     public ResponseEntity<?> balancoFisicoFinanceiro() {
         try {
@@ -140,7 +129,7 @@ public class RelatorioController {
         }
     }
 
-    // 3) Produtos abaixo da quantidade mínima
+    // 3 Produtos abaixo da quantidade mínima
     @GetMapping("/relatorios/estoqueMinimo")
     public ResponseEntity<?> produtosAbaixoDaMinima() {
         try {
@@ -170,7 +159,7 @@ public class RelatorioController {
         }
     }
 
-    // 4) Quantidade de Produtos por Categoria
+    // 4 Quantidade de Produtos por Categoria
     @GetMapping("/relatorios/quantidadeCategoria")
     public ResponseEntity<?> getQuantidadeProdutosPorCategoria() {
         try {
@@ -196,8 +185,8 @@ public class RelatorioController {
         }
     }
 
-    // 5) Produto com mais entrada e saída
-    @GetMapping("relatorios/produtoMaisMovimentado")
+    // 5 Produto com mais entrada e saída
+    @GetMapping("/relatorios/produtoMaisMovimentado")
     public ResponseEntity<Map<String, Object>> produtoMaisMovimentado() {
         List<Object[]> resultados = produtoRepository.buscarResumoMovimentacoes();
 
