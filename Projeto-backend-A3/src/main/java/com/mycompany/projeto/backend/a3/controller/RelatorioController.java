@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.mycompany.projeto.backend.a3.repository.MovimentacaoEstoqueRepository;
 
 @RestController
 @RequestMapping("/api")
@@ -186,41 +187,41 @@ public class RelatorioController {
     }
 
     // 5 Produto com mais entrada e saída
-    @GetMapping("/relatorios/produtoMaisMovimentado")
-    public ResponseEntity<Map<String, Object>> produtoMaisMovimentado() {
-        List<Object[]> resultados = produtoRepository.buscarResumoMovimentacoes();
+   @Autowired
+private MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
 
-        if (resultados.isEmpty()) {
-            return ResponseEntity.ok(Map.of(
-                    "mensagem", "Nenhum dado encontrado."
-            ));
-        }
+@GetMapping("/relatorios/produtoMaisMovimentado")
+public ResponseEntity<Map<String, Object>> produtoMaisMovimentado() {
 
-        // Identifica o produto com mais entrada e o com mais saída
-        Object[] produtoMaisEntrada = resultados.stream()
-                .max((a, b) -> Long.compare(
-                ((Number) a[1]).longValue(),
-                ((Number) b[1]).longValue()
-        ))
-                .orElse(null);
+    List<Object[]> resultados = movimentacaoEstoqueRepository.buscarResumoMovimentacoes();
 
-        Object[] produtoMaisSaida = resultados.stream()
-                .max((a, b) -> Long.compare(
-                ((Number) a[2]).longValue(),
-                ((Number) b[2]).longValue()
-        ))
-                .orElse(null);
-
-        Map<String, Object> resposta = new LinkedHashMap<>();
-        resposta.put("produtoMaisEntrada", Map.of(
-                "nome", produtoMaisEntrada[0],
-                "totalEntradas", produtoMaisEntrada[1]
-        ));
-        resposta.put("produtoMaisSaida", Map.of(
-                "nome", produtoMaisSaida[0],
-                "totalSaidas", produtoMaisSaida[2]
-        ));
-
-        return ResponseEntity.ok(resposta);
+    if (resultados.isEmpty()) {
+        return ResponseEntity.ok(Map.of("mensagem", "Nenhum dado encontrado."));
     }
+
+    Object[] produtoMaisEntrada = resultados.stream()
+            .max((a, b) -> Long.compare(
+                    ((Number) a[1]).longValue(),
+                    ((Number) b[1]).longValue()
+            )).orElse(null);
+
+    Object[] produtoMaisSaida = resultados.stream()
+            .max((a, b) -> Long.compare(
+                    ((Number) a[2]).longValue(),
+                    ((Number) b[2]).longValue()
+            )).orElse(null);
+
+    return ResponseEntity.ok(
+            Map.of(
+                "produtoMaisEntrada", Map.of(
+                        "nome", produtoMaisEntrada[0],
+                        "totalEntradas", produtoMaisEntrada[1]
+                ),
+                "produtoMaisSaida", Map.of(
+                        "nome", produtoMaisSaida[0],
+                        "totalSaidas", produtoMaisSaida[2]
+                )
+            )
+    );
+}
 }
