@@ -20,20 +20,17 @@ public class RelatorioController {
     @Autowired
     private ProdutoRepository produtoRepository;
 
-    // Helper: tenta obter unidade via reflection
+    // tenta obter unidade via reflection
     private String tentarObterUnidade(Produto p) {
         try {
-            // tenta getUnidadeMedida()
             Method m = p.getClass().getMethod("getUnidadeMedida");
             Object val = m.invoke(p);
             return val != null ? val.toString() : "N/A";
         } catch (NoSuchMethodException ignored) {
         } catch (Exception e) {
-            // qualquer outro erro: cai para próximos
         }
 
         try {
-            // tenta getUnidade()
             Method m2 = p.getClass().getMethod("getUnidade");
             Object val = m2.invoke(p);
             return val != null ? val.toString() : "N/A";
@@ -41,11 +38,10 @@ public class RelatorioController {
         } catch (Exception e) {
         }
 
-        // fallback
         return "N/A";
     }
 
-    // 1) Lista de Preços
+    // 1 Lista de Preços
     @GetMapping("/relatorios/listaPrecos")
     public ResponseEntity<?> listaPrecos() {
         try {
