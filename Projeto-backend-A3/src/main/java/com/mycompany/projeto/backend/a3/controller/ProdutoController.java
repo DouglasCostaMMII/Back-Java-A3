@@ -1,11 +1,23 @@
 package com.mycompany.projeto.backend.a3.controller;
+
 import com.mycompany.projeto.backend.a3.model.Produto;
-import com.mycompany.projeto.backend.a3.model.Categoria; // Importa o modelo de Categoria
+import com.mycompany.projeto.backend.a3.model.Categoria;
+
 import com.mycompany.projeto.backend.a3.repository.ProdutoRepository;
-import com.mycompany.projeto.backend.a3.repository.CategoriaRepository; // Necessário para buscar a categoria
+import com.mycompany.projeto.backend.a3.repository.CategoriaRepository;
+
 import com.mycompany.projeto.backend.a3.dto.AtualizarStatusProdutoRequest;
-import com.mycompany.projeto.backend.a3.dto.CriarProdutoRequest;     // DTO de criação
-import com.mycompany.projeto.backend.a3.dto.MovimentacaoEstoqueRequest; // IMPORT NOVO DTO
+import com.mycompany.projeto.backend.a3.dto.CriarProdutoRequest;     
+import com.mycompany.projeto.backend.a3.dto.MovimentacaoEstoqueRequest; 
+
+import com.mycompany.projeto.backend.a3.model.EntradaMov; 
+import com.mycompany.projeto.backend.a3.model.SaidaMov;
+
+import com.mycompany.projeto.backend.a3.repository.EntradaRepository; 
+import com.mycompany.projeto.backend.a3.repository.SaidaRepository;
+
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +37,12 @@ public class ProdutoController {
     
     @Autowired // INJEÇÃO NECESSÁRIA para buscar o objeto Categoria
     private CategoriaRepository categoriaRepository;
+
+    @Autowired
+    private EntradaRepository entradaRepository;
+
+    @Autowired
+    private SaidaRepository saidaRepository;
 
     // Obter todos os produtos
     @GetMapping("/produtos")
@@ -171,21 +189,34 @@ public class ProdutoController {
         try {
             // 2. Executa a Movimentação (Aumentar ou Diminuir)
             if ("ENTRADA".equals(tipo)) {
-                // ENTRADA: AUMENTA O ESTOQUE
-                // Usa produto.getQuantidade() e SOMA
+               
                 produto.setQuantidade(produto.getQuantidade() + quantidadeMovimentada); 
-            
+                EntradaMov novaEntrada = new EntradaMov();
+                novaEntrada.setProduto(produto);
+                novaEntrada.setQuantidade(quantidadeMovimentada);
+                novaEntrada.setCategoria(produto.getCategoria()); 
+                novaEntrada.setDataHora(LocalDateTime.now());
+
+                entradaRepository.save(novaEntrada);
+
             } else if ("SAIDA".equals(tipo)) {
-                // SAÍDA: DIMINUI O ESTOQUE
                 if (produto.getQuantidade() < quantidadeMovimentada) { // Usa produto.getQuantidade() para validação
                      return new ResponseEntity<>(
                         Map.of("Erro", "Estoque insuficiente para a saída. Saldo atual: " + produto.getQuantidade()), 
                         HttpStatus.BAD_REQUEST // 400
                     );
                 }
-                // Usa produto.getQuantidade() e SUBTRAI
+                
                 produto.setQuantidade(produto.getQuantidade() - quantidadeMovimentada);
                 
+                SaidaMov novaSaida = new SaidaMov();
+                novaSaida.setProduto(produto);
+                novaSaida.setQuantidade(quantidadeMovimentada);
+                novaSaida.setCategoria(produto.getCategoria());
+                novaSaida.setDataHora(LocalDateTime.now());
+
+                saidaRepository.save(novaSaida);
+
             } else {
                 return new ResponseEntity<>(
                     Map.of("Erro", "Tipo de movimentação inválido. Use 'ENTRADA' ou 'SAIDA'."), 
