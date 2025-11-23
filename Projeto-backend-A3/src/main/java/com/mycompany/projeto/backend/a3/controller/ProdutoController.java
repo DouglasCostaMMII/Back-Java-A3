@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.POST,RequestMethod.GET,RequestMethod.PUT,RequestMethod.OPTIONS})
 public class ProdutoController {
 
     @Autowired
@@ -94,7 +94,7 @@ public class ProdutoController {
         }
     }
 
-    @PutMapping("/produto/editar/{id}")
+    @PostMapping("/produto/editar/{id}")
     public ResponseEntity<?> editarProduto(@PathVariable Long id, @RequestBody CriarProdutoRequest request) {
         
         // 1. Busca o Produto Existente
@@ -230,7 +230,7 @@ public ResponseEntity<?> movimentarEstoque(@RequestBody MovimentacaoEstoqueReque
 
     // NOVO: API para Atualizar Status (LIMPA: usa apenas ProdutoId e Status)
     // Rota: PUT /api/produto/status
-    @PutMapping("/produtos/status")
+    @PostMapping("/produtos/status")
     public ResponseEntity<?> atualizarStatus(@RequestBody AtualizarStatusProdutoRequest request) {
         
         // 1. Obtém os valores de forma clara e correta
