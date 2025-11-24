@@ -17,8 +17,5 @@ public class MovimentacaoEstoque {
     private Produto produto;
 
     @Column(nullable = false)
-    private String tipo; // ENTRADA ou SAIDA
-
-    @Column(nullable = false)
     private Integer quantidade;
 }
