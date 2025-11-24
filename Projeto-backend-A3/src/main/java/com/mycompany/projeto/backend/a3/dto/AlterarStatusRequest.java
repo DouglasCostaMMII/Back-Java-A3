@@ -4,10 +4,18 @@
  */
 package com.mycompany.projeto.backend.a3.dto;
 
-import lombok.Data;
 
-@Data
+
 public class AlterarStatusRequest {
     private Long categoriaid;
     private String status;
+
+
+    // Getters e Setters
+    public Long getCategoriaid() { return categoriaid; }
+    public void setCategoriaid(Long categoriaid) { this.categoriaid = categoriaid; }
+    
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
 }
