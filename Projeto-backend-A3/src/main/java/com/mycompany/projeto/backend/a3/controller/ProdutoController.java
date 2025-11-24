@@ -7,7 +7,8 @@ import com.mycompany.projeto.backend.a3.repository.ProdutoRepository;
 import com.mycompany.projeto.backend.a3.repository.MovimentacaoEstoqueRepository;
 import com.mycompany.projeto.backend.a3.repository.CategoriaRepository;
 import com.mycompany.projeto.backend.a3.dto.AtualizarStatusProdutoRequest;
-import com.mycompany.projeto.backend.a3.dto.CriarProdutoRequest;     
+import com.mycompany.projeto.backend.a3.dto.CriarProdutoRequest;
+import com.mycompany.projeto.backend.a3.dto.EditarProdutoRequest;
 import com.mycompany.projeto.backend.a3.dto.MovimentacaoEstoqueRequest; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -94,60 +95,63 @@ public class ProdutoController {
         }
     }
 
-    @PostMapping("/produto/editar/{id}")
-    public ResponseEntity<?> editarProduto(@PathVariable Long id, @RequestBody CriarProdutoRequest request) {
-        
-        // 1. Busca o Produto Existente
-        Optional<Produto> produtoOptional = produtoRepository.findById(id);
+@PostMapping("/produto/editar") 
+public ResponseEntity<?> editarProduto(@RequestBody EditarProdutoRequest request) { // Use o DTO com o campo ID
 
-        if (produtoOptional.isEmpty()) {
-            return new ResponseEntity<>(
-                Map.of("Erro", "Produto não encontrado com o ID: " + id), 
-                HttpStatus.NOT_FOUND
-            );
-        }
+    // 💡 Captura o ID do Produto DIRETAMENTE do corpo da requisição (DTO)
+    Long produtoId = request.getProdutoId(); 
+    
+    // 1. Busca o Produto Existente
+    Optional<Produto> produtoOptional = produtoRepository.findById(produtoId); // Usa o ID do DTO
 
-        // 2. Obtém a instância do Produto para edição
-        Produto produtoExistente = produtoOptional.get();
-        
-        // 3. Verifica se a Categoria precisa ser alterada
-        Optional<Categoria> categoriaOptional = categoriaRepository.findById(request.getCategoriaId());
-        
-        if (categoriaOptional.isEmpty()) {
-            return new ResponseEntity<>(
-                Map.of("Erro", "Categoria não encontrada com o ID: " + request.getCategoriaId()), 
-                HttpStatus.NOT_FOUND
-            );
-        }
-        
-        // 4. Mapeia e Atualiza os Campos
-        Categoria novaCategoria = categoriaOptional.get();
-        
-        produtoExistente.setNome(request.getNome());
-        produtoExistente.setPreco(request.getPreco());
-        produtoExistente.setQuantidade(request.getQuantidade());
-        produtoExistente.setQuantidadeMinima(request.getQuantidadeMinima());
-        
-        if (request.getStatus() != null) {
-            produtoExistente.setStatus(request.getStatus().toUpperCase());
-        }
-
-        try {
-            // 5. Salva a instância atualizada
-            produtoRepository.save(produtoExistente);
-            
-            return new ResponseEntity<>(
-                Map.of("Mensagem", "Produto ID " + id + " atualizado com sucesso"), 
-                HttpStatus.OK
-            );
-            
-        } catch (Exception e) {
-            return new ResponseEntity<>(
-                Map.of("Erro", "Erro interno ao atualizar Produto: " + e.getMessage()), 
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
+    if (produtoOptional.isEmpty()) {
+        return new ResponseEntity<>(
+            Map.of("Erro", "Produto não encontrado com o ID: " + produtoId), 
+            HttpStatus.NOT_FOUND // 404
+        );
     }
+
+    // 2. Obtém a instância do Produto para edição
+    Produto produtoExistente = produtoOptional.get();
+    
+    // 3. Verifica se a Categoria precisa ser alterada
+    Optional<Categoria> categoriaOptional = categoriaRepository.findById(request.getCategoriaId());
+    
+    if (categoriaOptional.isEmpty()) {
+        return new ResponseEntity<>(
+            Map.of("Erro", "Categoria não encontrada com o ID: " + request.getCategoriaId()), 
+            HttpStatus.NOT_FOUND // 404
+        );
+    }
+    
+    // 4. Mapeia e Atualiza os Campos
+    Categoria novaCategoria = categoriaOptional.get();
+    
+    produtoExistente.setNome(request.getNome());
+    produtoExistente.setPreco(request.getPreco());
+    produtoExistente.setQuantidadeMinima(request.getQuantidadeMinima());
+    produtoExistente.setCategoria(novaCategoria); // Garante a atualização da Categoria
+    
+    if (request.getStatus() != null) {
+        produtoExistente.setStatus(request.getStatus().toUpperCase());
+    }
+
+    try {
+        // 5. Salva a instância atualizada
+        produtoRepository.save(produtoExistente);
+        
+        return new ResponseEntity<>(
+            Map.of("Mensagem", "Produto ID " + produtoId + " atualizado com sucesso"), 
+            HttpStatus.OK
+        );
+        
+    } catch (Exception e) {
+        return new ResponseEntity<>(
+            Map.of("Erro", "Erro interno ao atualizar Produto: " + e.getMessage()), 
+            HttpStatus.INTERNAL_SERVER_ERROR // 500
+        );
+    }
+}
 
    
 // API para Movimentação de Estoque (Aumentar/Diminuir)
