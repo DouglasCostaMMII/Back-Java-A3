@@ -190,7 +190,11 @@ public class ProdutoController {
             // 2. Executa a Movimentação (Aumentar ou Diminuir)
             if ("ENTRADA".equals(tipo)) {
                
-                produto.setQuantidade(produto.getQuantidade() + quantidadeMovimentada); 
+                Integer quantidadeAtual = produto.getQuantidade();  if (quantidadeAtual == null) {
+                    quantidadeAtual = 0;
+                    }
+                Integer novaQuantidade = quantidadeAtual + request.getQuantidade();
+                produto.setQuantidade(novaQuantidade);
                 EntradaMov novaEntrada = new EntradaMov();
                 novaEntrada.setProduto(produto);
                 novaEntrada.setQuantidade(quantidadeMovimentada);
