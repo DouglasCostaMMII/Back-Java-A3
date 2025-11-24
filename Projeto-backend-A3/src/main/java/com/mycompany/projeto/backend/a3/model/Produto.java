@@ -2,9 +2,12 @@ package com.mycompany.projeto.backend.a3.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import lombok.Data;
+// Não precisa mais de importações de Jackson aqui
 
-@Data
+/**
+ * Representa a entidade Produto no banco de dados,
+ * alinhada com as colunas reais da tabela 'produtos'.
+ */
 @Entity
 @Table(name = "produtos")
 public class Produto {
@@ -44,4 +47,31 @@ public class Produto {
     // --- Construtor Padrão (necessário para JPA) ---
     public Produto() {
     }
+
+    // --- Getters e Setters ---
+
+    public Long getProdutoId() { return produtoId; }
+    public void setProdutoId(Long produtoId) { this.produtoId = produtoId; }
+    
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+    
+    
+    public BigDecimal getPreco() { return preco; }
+    public void setPreco(BigDecimal preco) { this.preco = preco; }
+
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+
+    
+    public Integer getQuantidadeMinima() { return quantidadeMinima; }
+    public void setQuantidadeMinima(Integer quantidadeMinima) { this.quantidadeMinima = quantidadeMinima; }
+    
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+     // Getter/Setter da Categoria
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
+ 
 }
