@@ -1,9 +1,25 @@
 package com.mycompany.projeto.backend.a3.controller;
+
 import com.mycompany.projeto.backend.a3.model.Produto;
 import com.mycompany.projeto.backend.a3.model.Categoria;
+
+import com.mycompany.projeto.backend.a3.repository.ProdutoRepository;
+import com.mycompany.projeto.backend.a3.repository.CategoriaRepository;
+
+import com.mycompany.projeto.backend.a3.dto.AtualizarStatusProdutoRequest;
+import com.mycompany.projeto.backend.a3.dto.CriarProdutoRequest;     
+import com.mycompany.projeto.backend.a3.dto.MovimentacaoEstoqueRequest; 
+
+import com.mycompany.projeto.backend.a3.model.EntradaMov; 
+import com.mycompany.projeto.backend.a3.model.SaidaMov;
+
+import com.mycompany.projeto.backend.a3.repository.EntradaRepository; 
+import com.mycompany.projeto.backend.a3.repository.SaidaRepository;
+
+import java.time.LocalDateTime;
+
 import com.mycompany.projeto.backend.a3.model.MovimentacaoEstoque;
 import com.mycompany.projeto.backend.a3.model.TipoMovimentacao;
-import com.mycompany.projeto.backend.a3.repository.ProdutoRepository;
 import com.mycompany.projeto.backend.a3.repository.MovimentacaoEstoqueRepository;
 import com.mycompany.projeto.backend.a3.repository.CategoriaRepository;
 import com.mycompany.projeto.backend.a3.dto.AtualizarStatusProdutoRequest;
@@ -31,6 +47,12 @@ public class ProdutoController {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
+    @Autowired
+    private EntradaRepository entradaRepository;
+
+    @Autowired
+    private SaidaRepository saidaRepository;
+  
     @Autowired
     private MovimentacaoEstoqueRepository MovimentacaoEstoqueRepository;
 
@@ -157,79 +179,86 @@ public ResponseEntity<?> editarProduto(@RequestBody EditarProdutoRequest request
 // API para Movimentação de Estoque (Aumentar/Diminuir)
     // Rota: POST /api/produto/movimentar-estoque
     @PostMapping("/produtos/movimentar-estoque")
-public ResponseEntity<?> movimentarEstoque(@RequestBody MovimentacaoEstoqueRequest request) {
+    public ResponseEntity<?> movimentarEstoque(@RequestBody MovimentacaoEstoqueRequest request) {
+        
+        Optional<Produto> produtoOptional = produtoRepository.findById(request.getProdutoId());
 
-    Optional<Produto> produtoOptional = produtoRepository.findById(request.getProdutoId());
-
-    if (produtoOptional.isEmpty()) {
-        return new ResponseEntity<>(
-                Map.of("Erro", "Produto não encontrado com o ID: " + request.getProdutoId()),
-                HttpStatus.NOT_FOUND
-        );
-    }
-
-    Produto produto = produtoOptional.get();
-    Integer quantidadeMovimentada = request.getQuantidade();
-    String tipo = request.getTipo() != null ? request.getTipo().toUpperCase() : "";
-
-    if (quantidadeMovimentada == null || quantidadeMovimentada <= 0) {
-        return new ResponseEntity<>(
-                Map.of("Erro", "A quantidade para movimentação deve ser maior que zero."),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    try {
-        // Atualiza estoque
-        if ("ENTRADA".equals(tipo)) {
-            produto.setQuantidade(produto.getQuantidade() + quantidadeMovimentada);
-        } else if ("SAIDA".equals(tipo)) {
-
-            if (produto.getQuantidade() < quantidadeMovimentada) {
-                return new ResponseEntity<>(
-                        Map.of("Erro", "Estoque insuficiente. Saldo atual: " + produto.getQuantidade()),
-                        HttpStatus.BAD_REQUEST
-                );
-            }
-
-            produto.setQuantidade(produto.getQuantidade() - quantidadeMovimentada);
-
-        } else {
+        if (produtoOptional.isEmpty()) {
             return new ResponseEntity<>(
-                    Map.of("Erro", "Tipo inválido. Use 'ENTRADA' ou 'SAIDA'."),
-                    HttpStatus.BAD_REQUEST
+                Map.of("Erro", "Produto não encontrado com o ID: " + request.getProdutoId()), 
+                HttpStatus.NOT_FOUND // 404
             );
         }
 
-        produtoRepository.save(produto);
+        Produto produto = produtoOptional.get();
+        Integer quantidadeMovimentada = request.getQuantidade();
+        String tipo = request.getTipo() != null ? request.getTipo().toUpperCase() : "";
 
-        // REGISTRA A MOVIMENTAÇÃO
-        MovimentacaoEstoque mov = new MovimentacaoEstoque();
-        mov.setProduto(produto);
-        mov.setQuantidade(quantidadeMovimentada);
-        mov.setTipo("ENTRADA".equals(tipo) ? TipoMovimentacao.ENTRADA : TipoMovimentacao.SAIDA);
-        mov.setDataMovimentacao(LocalDateTime.now());
+        if (quantidadeMovimentada == null || quantidadeMovimentada <= 0) {
+             return new ResponseEntity<>(
+                Map.of("Erro", "A quantidade para movimentação deve ser maior que zero."), 
+                HttpStatus.BAD_REQUEST // 400
+            );
+        }
+        
+        try {
+            // 2. Executa a Movimentação (Aumentar ou Diminuir)
+            if ("ENTRADA".equals(tipo)) {
+               
+                Integer quantidadeAtual = produto.getQuantidade();  if (quantidadeAtual == null) {
+                    quantidadeAtual = 0;
+                    }
+                Integer novaQuantidade = quantidadeAtual + request.getQuantidade();
+                produto.setQuantidade(novaQuantidade);
+                EntradaMov novaEntrada = new EntradaMov();
+                novaEntrada.setProduto(produto);
+                novaEntrada.setQuantidade(quantidadeMovimentada);
+                novaEntrada.setCategoria(produto.getCategoria()); 
+                novaEntrada.setDataHora(LocalDateTime.now());
 
-        MovimentacaoEstoqueRepository.save(mov);
+                entradaRepository.save(novaEntrada);
 
-        return new ResponseEntity<>(
-                Map.of(
-                    "Mensagem", "Movimentação registrada com sucesso",
-                    "NovoEstoque", produto.getQuantidade()
-                ),
-                HttpStatus.OK
-        );
+            } else if ("SAIDA".equals(tipo)) {
+                if (produto.getQuantidade() < quantidadeMovimentada) { // Usa produto.getQuantidade() para validação
+                     return new ResponseEntity<>(
+                        Map.of("Erro", "Estoque insuficiente para a saída. Saldo atual: " + produto.getQuantidade()), 
+                        HttpStatus.BAD_REQUEST // 400
+                    );
+                }
+                
+                produto.setQuantidade(produto.getQuantidade() - quantidadeMovimentada);
+                
+                SaidaMov novaSaida = new SaidaMov();
+                novaSaida.setProduto(produto);
+                novaSaida.setQuantidade(quantidadeMovimentada);
+                novaSaida.setCategoria(produto.getCategoria());
+                novaSaida.setDataHora(LocalDateTime.now());
 
-    } catch (Exception e) {
-        return new ResponseEntity<>(
-                Map.of("Erro", "Erro interno ao movimentar estoque: " + e.getMessage()),
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
+                saidaRepository.save(novaSaida);
+
+            } else {
+                return new ResponseEntity<>(
+                    Map.of("Erro", "Tipo de movimentação inválido. Use 'ENTRADA' ou 'SAIDA'."), 
+                    HttpStatus.BAD_REQUEST // 400
+                );
+            }
+
+            // 3. Salva a atualização
+            Produto produtoAtualizado = produtoRepository.save(produto);
+            
+            return new ResponseEntity<>(
+                Map.of("Mensagem", "Estoque do Produto ID " + produto.getProdutoId() + " atualizado para " + produtoAtualizado.getQuantidade(), 
+                       "Tipo", tipo),
+                HttpStatus.OK // 200
+            );
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                Map.of("Erro", "Erro interno ao movimentar estoque: " + e.getMessage()), 
+                HttpStatus.INTERNAL_SERVER_ERROR // 500
+            );
+        }
     }
-}
-
-
-
 // ... (Métodos getProdutos, addProduto, editarProduto e movimentarEstoque permanecem os mesmos) ...
 
     // NOVO: API para Atualizar Status (LIMPA: usa apenas ProdutoId e Status)
