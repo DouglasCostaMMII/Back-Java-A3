@@ -5,10 +5,12 @@ import com.mycompany.projeto.backend.a3.model.Categoria;
 
 import com.mycompany.projeto.backend.a3.repository.ProdutoRepository;
 import com.mycompany.projeto.backend.a3.repository.CategoriaRepository;
+import com.mycompany.projeto.backend.a3.repository.MovimentacaoEstoqueRepository;
 
 import com.mycompany.projeto.backend.a3.dto.AtualizarStatusProdutoRequest;
 import com.mycompany.projeto.backend.a3.dto.CriarProdutoRequest;     
 import com.mycompany.projeto.backend.a3.dto.MovimentacaoEstoqueRequest; 
+import com.mycompany.projeto.backend.a3.dto.EditarProdutoRequest;
 
 import com.mycompany.projeto.backend.a3.model.EntradaMov; 
 import com.mycompany.projeto.backend.a3.model.SaidaMov;
@@ -16,20 +18,11 @@ import com.mycompany.projeto.backend.a3.model.SaidaMov;
 import com.mycompany.projeto.backend.a3.repository.EntradaRepository; 
 import com.mycompany.projeto.backend.a3.repository.SaidaRepository;
 
-import java.time.LocalDateTime;
-
-import com.mycompany.projeto.backend.a3.model.MovimentacaoEstoque;
-import com.mycompany.projeto.backend.a3.model.TipoMovimentacao;
-import com.mycompany.projeto.backend.a3.repository.MovimentacaoEstoqueRepository;
-import com.mycompany.projeto.backend.a3.repository.CategoriaRepository;
-import com.mycompany.projeto.backend.a3.dto.AtualizarStatusProdutoRequest;
-import com.mycompany.projeto.backend.a3.dto.CriarProdutoRequest;
-import com.mycompany.projeto.backend.a3.dto.EditarProdutoRequest;
-import com.mycompany.projeto.backend.a3.dto.MovimentacaoEstoqueRequest; 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,8 +46,7 @@ public class ProdutoController {
     @Autowired
     private SaidaRepository saidaRepository;
   
-    @Autowired
-    private MovimentacaoEstoqueRepository MovimentacaoEstoqueRepository;
+
 
     // Obter todos os produtos
     @GetMapping("/produtos")
