@@ -6,11 +6,11 @@ import java.math.BigDecimal;
  * DTO para receber dados necessários para a criação de um novo Produto.
  * Usado no POST para /api/produto/criar.
  */
-public class CriarProdutoRequest {
+public class EditarProdutoRequest {
     
+    private Long produtoId; // <<--- CAMPO NECESSÁRIO
     private String nome;
     private BigDecimal preco;
-    private Integer quantidade; 
     private Integer quantidadeMinima; 
     private String status;
     
@@ -26,6 +26,7 @@ public class CriarProdutoRequest {
     public BigDecimal getPreco() { return preco; }
     public void setPreco(BigDecimal preco) { this.preco = preco; }
 
+
     public Integer getQuantidadeMinima() { return quantidadeMinima; }
     public void setQuantidadeMinima(Integer quantidadeMinima) { this.quantidadeMinima = quantidadeMinima; }
     
@@ -34,4 +35,7 @@ public class CriarProdutoRequest {
     
     public Long getCategoriaId() { return categoriaId; }
     public void setCategoriaId(Long categoriaId) { this.categoriaId = categoriaId; }
+
+    public Long getProdutoId() { return produtoId; }
+    public void setProdutoId(Long produtoId) { this.produtoId = produtoId;}
 }

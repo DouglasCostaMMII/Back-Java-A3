@@ -1,6 +1,7 @@
 package com.mycompany.projeto.backend.a3.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "movimentacao_estoque")
@@ -15,41 +16,28 @@ public class MovimentacaoEstoque {
     private Produto produto;
 
     @Column(nullable = false)
-    private String tipo; // ENTRADA ou SAIDA
-
-    @Column(nullable = false)
     private Integer quantidade;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoMovimentacao tipo;
+
+    @Column(nullable = false)
+    private LocalDateTime dataMovimentacao;
+
     // Getters e Setters
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getId() { return id; }
 
-    public Produto getProduto() {
-        return produto;
-    }
+    public Produto getProduto() { return produto; }
+    public void setProduto(Produto produto) { this.produto = produto; }
 
-    public void setProduto(Produto produto) {
-        this.produto = produto;
-    }
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
 
-    public String getTipo() {
-        return tipo;
-    }
+    public TipoMovimentacao getTipo() { return tipo; }
+    public void setTipo(TipoMovimentacao tipo) { this.tipo = tipo; }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-
-    public Integer getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(Integer quantidade) {
-        this.quantidade = quantidade;
-    }
+    public LocalDateTime getDataMovimentacao() { return dataMovimentacao; }
+    public void setDataMovimentacao(LocalDateTime dataMovimentacao) { this.dataMovimentacao = dataMovimentacao; }
 }
