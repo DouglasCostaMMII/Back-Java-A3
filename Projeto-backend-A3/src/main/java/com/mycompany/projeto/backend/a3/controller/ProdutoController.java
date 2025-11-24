@@ -1,4 +1,5 @@
 package com.mycompany.projeto.backend.a3.controller;
+
 import com.mycompany.projeto.backend.a3.model.Produto;
 import com.mycompany.projeto.backend.a3.model.Categoria;
 import com.mycompany.projeto.backend.a3.model.MovimentacaoEstoque;
@@ -32,6 +33,10 @@ public class ProdutoController {
     private CategoriaRepository categoriaRepository;
 
     @Autowired
+    private EntradaRepository entradaRepository;
+
+    @Autowired
+    private SaidaRepository saidaRepository;
     private MovimentacaoEstoqueRepository MovimentacaoEstoqueRepository;
 
     // Obter todos os produtos
@@ -168,24 +173,49 @@ public ResponseEntity<?> movimentarEstoque(@RequestBody MovimentacaoEstoqueReque
         );
     }
 
-    Produto produto = produtoOptional.get();
-    Integer quantidadeMovimentada = request.getQuantidade();
-    String tipo = request.getTipo() != null ? request.getTipo().toUpperCase() : "";
+        if (quantidadeMovimentada == null || quantidadeMovimentada <= 0) {
+             return new ResponseEntity<>(
+                Map.of("Erro", "A quantidade para movimentação deve ser maior que zero."), 
+                HttpStatus.BAD_REQUEST // 400
+            );
+        }
+        
+        try {
+            // 2. Executa a Movimentação (Aumentar ou Diminuir)
+            if ("ENTRADA".equals(tipo)) {
+               
+                Integer quantidadeAtual = produto.getQuantidade();  if (quantidadeAtual == null) {
+                    quantidadeAtual = 0;
+                    }
+                Integer novaQuantidade = quantidadeAtual + request.getQuantidade();
+                produto.setQuantidade(novaQuantidade);
+                EntradaMov novaEntrada = new EntradaMov();
+                novaEntrada.setProduto(produto);
+                novaEntrada.setQuantidade(quantidadeMovimentada);
+                novaEntrada.setCategoria(produto.getCategoria()); 
+                novaEntrada.setDataHora(LocalDateTime.now());
 
-    if (quantidadeMovimentada == null || quantidadeMovimentada <= 0) {
-        return new ResponseEntity<>(
-                Map.of("Erro", "A quantidade para movimentação deve ser maior que zero."),
-                HttpStatus.BAD_REQUEST
-        );
-    }
+                entradaRepository.save(novaEntrada);
 
-    try {
-        // Atualiza estoque
-        if ("ENTRADA".equals(tipo)) {
-            produto.setQuantidade(produto.getQuantidade() + quantidadeMovimentada);
-        } else if ("SAIDA".equals(tipo)) {
+            } else if ("SAIDA".equals(tipo)) {
+                if (produto.getQuantidade() < quantidadeMovimentada) { // Usa produto.getQuantidade() para validação
+                     return new ResponseEntity<>(
+                        Map.of("Erro", "Estoque insuficiente para a saída. Saldo atual: " + produto.getQuantidade()), 
+                        HttpStatus.BAD_REQUEST // 400
+                    );
+                }
+                
+                produto.setQuantidade(produto.getQuantidade() - quantidadeMovimentada);
+                
+                SaidaMov novaSaida = new SaidaMov();
+                novaSaida.setProduto(produto);
+                novaSaida.setQuantidade(quantidadeMovimentada);
+                novaSaida.setCategoria(produto.getCategoria());
+                novaSaida.setDataHora(LocalDateTime.now());
 
-            if (produto.getQuantidade() < quantidadeMovimentada) {
+                saidaRepository.save(novaSaida);
+
+            } else {
                 return new ResponseEntity<>(
                         Map.of("Erro", "Estoque insuficiente. Saldo atual: " + produto.getQuantidade()),
                         HttpStatus.BAD_REQUEST
