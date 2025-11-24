@@ -1,0 +1,49 @@
+CREATE DATABASE estoque;
+USE estoque;
+CREATE TABLE `categorias` (
+  `categoriaid` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `status` varchar(255) NOT NULL,
+  `tamanho` varchar(255) NOT NULL,
+  `embalagem` varchar(255) NOT NULL,
+  PRIMARY KEY (`categoriaid`),
+  UNIQUE KEY `nome` (`nome`)
+) 
+
+
+CREATE TABLE `entradas` (
+  `entradaid` int NOT NULL AUTO_INCREMENT,
+  `produto_id` int DEFAULT NULL,
+  `quantidade` bigint NOT NULL,
+  `data_entrada` date DEFAULT NULL,
+  `categoria_idE` int DEFAULT NULL,
+  PRIMARY KEY (`entradaid`),
+  KEY `produto_id` (`produto_id`),
+  KEY `categoria_entrada_idx` (`categoria_idE`),
+  CONSTRAINT `categoria_entrada` FOREIGN KEY (`categoria_idE`) REFERENCES `categorias` (`categoriaid`),
+  CONSTRAINT `entradas_ibfk_1` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`produtoid`)
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `saidas` (
+  `saidaid` int NOT NULL AUTO_INCREMENT,
+  `produto_id` int DEFAULT NULL,
+  `quantidade` bigint NOT NULL,
+  `data_saida` date DEFAULT NULL,
+  `categoria_idS` int DEFAULT NULL,
+  PRIMARY KEY (`saidaid`),
+  KEY `produto_id` (`produto_id`),
+  KEY `categoria_saida_idx` (`categoria_idS`),
+  CONSTRAINT `categoria_saida` FOREIGN KEY (`categoria_idS`) REFERENCES `categorias` (`categoriaid`),
+  CONSTRAINT `saídas_ibfk_1` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`produtoid`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+CREATE TABLE movimentacao (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tipo ENUM("entrada","saida"),
+  quantidade INT,
+  id_produto INT,
+  data_movimentacao DATE,
+  FOREIGN KEY (id_produto) REFERENCES produto(id)
+);
