@@ -1,16 +1,20 @@
 package com.mycompany.projeto.backend.a3.controller;
 import com.mycompany.projeto.backend.a3.model.Produto;
 import com.mycompany.projeto.backend.a3.repository.ProdutoRepository;
+import com.mycompany.projeto.backend.a3.repository.SaidaRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.math.BigDecimal;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
-import com.mycompany.projeto.backend.a3.repository.MovimentacaoEstoqueRepository;
+
+import com.mycompany.projeto.backend.a3.repository.EntradaRepository;
 
 @RestController
 @RequestMapping("/api")
@@ -19,27 +23,6 @@ public class RelatorioController {
 
     @Autowired
     private ProdutoRepository produtoRepository;
-
-    // tenta obter unidade via reflection
-    private String tentarObterUnidade(Produto p) {
-        try {
-            Method m = p.getClass().getMethod("getUnidadeMedida");
-            Object val = m.invoke(p);
-            return val != null ? val.toString() : "N/A";
-        } catch (NoSuchMethodException ignored) {
-        } catch (Exception e) {
-        }
-
-        try {
-            Method m2 = p.getClass().getMethod("getUnidade");
-            Object val = m2.invoke(p);
-            return val != null ? val.toString() : "N/A";
-        } catch (NoSuchMethodException ignored) {
-        } catch (Exception e) {
-        }
-
-        return "N/A";
-    }
 
     // 1 Lista de Preços
     @GetMapping("/relatorios/listaPrecos")
@@ -183,41 +166,45 @@ public class RelatorioController {
     }
 
     // 5 Produto com mais entrada e saída
-   @Autowired
-private MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
+ 
+    @Autowired
+    private EntradaRepository entradaRepository;
+    
+    @Autowired
+    private SaidaRepository saidaRepository;
 
 @GetMapping("/relatorios/produtoMaisMovimentado")
 public ResponseEntity<Map<String, Object>> produtoMaisMovimentado() {
 
-    List<Object[]> resultados = movimentacaoEstoqueRepository.buscarResumoMovimentacoes();
+   
+    List<Object[]> topEntrada = entradaRepository.findProdutoComMaisEntradas(PageRequest.of(0, 1));
 
-    if (resultados.isEmpty()) {
-        return ResponseEntity.ok(Map.of("mensagem", "Nenhum dado encontrado."));
+   
+    List<Object[]> topSaida = saidaRepository.findProdutoComMaisSaidas(PageRequest.of(0, 1));
+
+    Map<String, Object> response = new HashMap<>();
+
+  
+    if (!topEntrada.isEmpty()) {
+        response.put("produtoMaisEntrada", Map.of(
+            "nome", topEntrada.get(0)[0],
+            "totalEntradas", topEntrada.get(0)[1]
+        ));
+    } else {
+        response.put("produtoMaisEntrada", "Nenhum dado encontrado.");
     }
 
-    Object[] produtoMaisEntrada = resultados.stream()
-            .max((a, b) -> Long.compare(
-                    ((Number) a[1]).longValue(),
-                    ((Number) b[1]).longValue()
-            )).orElse(null);
+   
+    if (!topSaida.isEmpty()) {
+        response.put("produtoMaisSaida", Map.of(
+            "nome", topSaida.get(0)[0],
+            "totalSaidas", topSaida.get(0)[1]
+        ));
+    } else {
+        response.put("produtoMaisSaida", "Nenhum dado encontrado.");
+    }
 
-    Object[] produtoMaisSaida = resultados.stream()
-            .max((a, b) -> Long.compare(
-                    ((Number) a[2]).longValue(),
-                    ((Number) b[2]).longValue()
-            )).orElse(null);
-
-    return ResponseEntity.ok(
-            Map.of(
-                "produtoMaisEntrada", Map.of(
-                        "nome", produtoMaisEntrada[0],
-                        "totalEntradas", produtoMaisEntrada[1]
-                ),
-                "produtoMaisSaida", Map.of(
-                        "nome", produtoMaisSaida[0],
-                        "totalSaidas", produtoMaisSaida[2]
-                )
-            )
-    );
+    return ResponseEntity.ok(response);
 }
+
 }

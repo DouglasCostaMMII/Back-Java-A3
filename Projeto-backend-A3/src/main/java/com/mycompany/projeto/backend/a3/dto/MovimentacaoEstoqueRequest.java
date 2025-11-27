@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class MovimentacaoEstoqueRequest {
 
     private Long produtoId;
-    private String tipo; // ENTRADA ou SAIDA
+    private String tipo;
     private Integer quantidade;
     private String nomeProduto;
     private String nomeCategoria;

@@ -5,7 +5,7 @@
 package com.mycompany.projeto.backend.a3.dto;
 import lombok.Data;
 
-// JSON do Post Editar
+
 @Data
 public class EditarCategoriaRequest {
     private String nome;

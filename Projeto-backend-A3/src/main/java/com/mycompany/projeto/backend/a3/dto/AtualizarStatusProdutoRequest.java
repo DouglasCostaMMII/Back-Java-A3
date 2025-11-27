@@ -7,6 +7,6 @@ import lombok.Data;
 public class AtualizarStatusProdutoRequest {
 
   private Long produtoId; 
-    private String status; // ATIVO ou INATIVO
+    private String status; 
 
 }
