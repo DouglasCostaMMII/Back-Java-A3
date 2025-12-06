@@ -6,8 +6,8 @@ package com.mycompany.projeto.backend.a3.controller;
 
 import com.mycompany.projeto.backend.a3.model.Categoria;
 import com.mycompany.projeto.backend.a3.repository.CategoriaRepository;
-import com.mycompany.projeto.backend.a3.dto.EditarCategoriaRequest; 
-import com.mycompany.projeto.backend.a3.dto.AlterarStatusRequest; 
+import com.mycompany.projeto.backend.a3.dto.EditarCategoriaRequest;
+import com.mycompany.projeto.backend.a3.dto.AlterarStatusRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api") // Define o prefixo '/api' para todas as rotas
+@RequestMapping("/api")
 @CrossOrigin(origins = "*")
 public class CategoriaController {
 
@@ -39,17 +39,17 @@ public class CategoriaController {
 
         try {
             novaCategoria.setStatus(novaCategoria.getStatus().toUpperCase());
-            Categoria categoriaSalva = categoriaRepository.save(novaCategoria);
+            categoriaRepository.save(novaCategoria);
             return new ResponseEntity<>(Map.of("Mensagem", "Categoria adicionada com sucesso"), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(Map.of("Erro", "erro ao adicionar Categoria"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Map.of("Erro", "erro ao adicionar Categoria"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Editar Categoria
     @PostMapping("/categoria/editar")
     public ResponseEntity<?> editarCategoria(@RequestBody EditarCategoriaRequest request) {
-        // Busca a categoria existente no banco
         Optional<Categoria> opcional = categoriaRepository.findById(request.getEditCategoriaId());
 
         if (opcional.isEmpty()) {
@@ -62,18 +62,19 @@ public class CategoriaController {
             categoria.setStatus(request.getEditStatus().toUpperCase());
             categoria.setTamanho(request.getTamanho());
             categoria.setEmbalagem(request.getEmbalagem());
-            
+
             categoriaRepository.save(categoria);
             return ResponseEntity.ok(Map.of("Mensagem", "Categoria Modificada com sucesso"));
         } catch (Exception e) {
-            return new ResponseEntity<>(Map.of("Erro", "erro ao Modificar Categoria"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Map.of("Erro", "erro ao Modificar Categoria"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Alterar Status
     @PostMapping("/categoria/alt_status")
     public ResponseEntity<?> alterarStatus(@RequestBody AlterarStatusRequest request) {
-        
+
         Optional<Categoria> opcional = categoriaRepository.findById(request.getCategoriaid());
 
         if (opcional.isEmpty()) {
@@ -83,11 +84,12 @@ public class CategoriaController {
         try {
             Categoria categoria = opcional.get();
             categoria.setStatus(request.getStatus().toUpperCase());
-            
+
             categoriaRepository.save(categoria);
             return ResponseEntity.ok(Map.of("Mensagem", "Status da Categoria Modificada com sucesso"));
         } catch (Exception e) {
-            return new ResponseEntity<>(Map.of("Erro", "erro ao Modificar Status da Categoria"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(Map.of("Erro", "erro ao Modificar Status da Categoria"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
